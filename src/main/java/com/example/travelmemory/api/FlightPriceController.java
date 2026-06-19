@@ -14,10 +14,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.travelmemory.cache.PriceCacheRepository;
 import com.example.travelmemory.cache.RedisKeyBuilder;
+import com.example.travelmemory.api.response.PriceHistoryResponse;
+import com.example.travelmemory.api.response.PriceWriteResponse;
 import com.example.travelmemory.model.FlightPriceQuery;
 import com.example.travelmemory.model.FlightPriceSnapshot;
-import com.example.travelmemory.model.PriceHistoryResponse;
-import com.example.travelmemory.model.PriceWriteResponse;
 
 @RestController
 @RequestMapping("/api/v1/flights/prices")

@@ -1,7 +1,5 @@
 package com.example.travelmemory.cache;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.ServerSocket;
@@ -10,6 +8,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -27,6 +26,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import redis.embedded.RedisServer;
 
+@SuppressWarnings("unused")
 class RedisPriceCacheRepositoryTest {
 
     private static RedisServer redisServer;
@@ -62,7 +62,7 @@ class RedisPriceCacheRepositoryTest {
 
         redisTemplate = new StringRedisTemplate(connectionFactory);
         redisTemplate.afterPropertiesSet();
-        try (RedisConnection connection = redisTemplate.getConnectionFactory().getConnection()) {
+        try (RedisConnection connection = connectionFactory.getConnection()) {
             connection.serverCommands().flushDb();
         }
 
