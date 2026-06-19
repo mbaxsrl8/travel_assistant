@@ -9,3 +9,10 @@ spring:
 travel:
   cache:
     latest-price-ttl: 15m
+  hbase:
+    quorum: localhost
+    client-port: 2181
+    znode-parent: /hbase
+    flight-table: travel_flight_prices
+    hotel-table: travel_hotel_prices
+    salt-buckets: 16
