@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: travel-price-memory
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+travel:
+  cache:
+    latest-price-ttl: 15m
