@@ -3,8 +3,9 @@ package com.example.travelmemory.service;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.example.travelmemory.cache.PriceCacheRepository;
 import com.example.travelmemory.model.HotelPriceQuery;
@@ -13,6 +14,8 @@ import com.example.travelmemory.persistence.PriceHistoryRepository;
 
 @Service
 public class HotelPriceService {
+
+    private static final Log log = LogFactory.getLog(HotelPriceService.class);
 
     private final PriceCacheRepository cacheRepository;
     private final PriceHistoryRepository<HotelPriceSnapshot, HotelPriceQuery> historyRepository;
@@ -25,11 +28,19 @@ public class HotelPriceService {
         this.historyRepository = historyRepository;
     }
 
-    @Transactional
     public HotelPriceSnapshot savePrice(HotelPriceSnapshot snapshot) {
         PriceRequestValidator.validate(snapshot);
-        cacheRepository.saveLatestHotelPrice(snapshot);
+
+        // 1. Persist first: HBase is the source of truth
         historyRepository.save(snapshot);
+
+        // 2. Cache second: Redis is only an optimization
+        try {
+            cacheRepository.saveLatestHotelPrice(snapshot);
+        } catch (Exception e) {
+            log.warn("Failed to update latest hotel price cache. snapshot=" + snapshot, e);
+        }
+
         return snapshot;
     }
 
