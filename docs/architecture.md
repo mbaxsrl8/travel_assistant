@@ -14,11 +14,11 @@ Cache Layer: Redis
 Persistence Layer: HBase
 ```
 
-Version 1 uses a simple cache-aside/write-through style:
+Version 1 uses a cache-aside design with durable-first writes:
 
 ```text
 Write price:
-API → Service → Redis latest price → HBase historical snapshot
+API → Service → HBase historical snapshot → Redis latest price
 
 Read latest price:
 API → Redis
@@ -226,7 +226,9 @@ p:metadata
 
 * Redis is optimized for latest lookup
 * HBase is optimized for historical queries
-* Write operations should update both Redis and HBase
+* Write operations persist to HBase before attempting to update Redis
+* A failed HBase write must not update Redis
+* A failed Redis update after a successful HBase write is logged and does not undo durability
 * HBase writes should be idempotent
 * Redis cache misses should fallback to HBase when possible
 * Row keys should avoid hot partitions using salt

@@ -1,5 +1,5 @@
 target/
 .docker-tmp/
 .vscode/
-AGENTS.md
 docs/postman/
+docs/interview-notes.md
