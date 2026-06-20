@@ -109,10 +109,21 @@ Write flow:
 ```text
 1. Validate request
 2. Create price snapshot
-3. Save latest price to Redis
-4. Save historical snapshot to HBase
+3. Save historical snapshot to HBase
+
+   - HBase is the source of truth.
+   - If this step fails, return failure and do not update Redis.
+
+4. Update latest price in Redis
+
+   - Redis is only a cache / fast lookup layer.
+   - If this step fails, log the error and rely on TTL or later refresh.
+   - Do not roll back the HBase write just because Redis failed.
+
 5. Return success response
 ```
+
+The write path persists the price snapshot to HBase before updating Redis. HBase is treated as the source of truth, while Redis stores the latest price for low-latency reads. This avoids the dangerous case where Redis contains a latest price that was never successfully persisted. If the Redis update fails after HBase succeeds, the system can still return success because the durable data has been saved; the cache can recover through TTL, cache refresh, or a later retry.
 
 Read latest flow:
 

@@ -12,30 +12,30 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.travelmemory.cache.PriceCacheRepository;
 import com.example.travelmemory.cache.RedisKeyBuilder;
 import com.example.travelmemory.api.response.PriceHistoryResponse;
 import com.example.travelmemory.api.response.PriceWriteResponse;
 import com.example.travelmemory.model.FlightPriceQuery;
 import com.example.travelmemory.model.FlightPriceSnapshot;
+import com.example.travelmemory.service.FlightPriceService;
 
 @RestController
 @RequestMapping("/api/v1/flights/prices")
 public class FlightPriceController {
 
-    private final PriceCacheRepository cacheRepository;
+    private final FlightPriceService priceService;
     private final RedisKeyBuilder keyBuilder;
 
-    public FlightPriceController(PriceCacheRepository cacheRepository, RedisKeyBuilder keyBuilder) {
-        this.cacheRepository = cacheRepository;
+    public FlightPriceController(FlightPriceService priceService, RedisKeyBuilder keyBuilder) {
+        this.priceService = priceService;
         this.keyBuilder = keyBuilder;
     }
 
     @PostMapping
     public ResponseEntity<PriceWriteResponse> saveLatestPrice(@RequestBody FlightPriceSnapshot snapshot) {
-        cacheRepository.saveLatestFlightPrice(snapshot);
+        priceService.savePrice(snapshot);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new PriceWriteResponse("cached", keyBuilder.latestFlightPriceKey(snapshot)));
+                .body(new PriceWriteResponse("saved", keyBuilder.latestFlightPriceKey(snapshot)));
     }
 
     @GetMapping("/latest")
@@ -46,11 +46,17 @@ public class FlightPriceController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate returnDate
     ) {
         FlightPriceQuery query = new FlightPriceQuery(origin, destination, departureDate, returnDate);
-        return ResponseEntity.of(cacheRepository.getLatestFlightPrice(query));
+        return ResponseEntity.of(priceService.getLatestPrice(query));
     }
 
     @GetMapping("/history")
-    public ResponseEntity<PriceHistoryResponse<FlightPriceSnapshot>> getPriceHistory() {
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+    public PriceHistoryResponse<FlightPriceSnapshot> getPriceHistory(
+            @RequestParam String origin,
+            @RequestParam String destination,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate departureDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate returnDate
+    ) {
+        FlightPriceQuery query = new FlightPriceQuery(origin, destination, departureDate, returnDate);
+        return new PriceHistoryResponse<>(priceService.getPriceHistory(query));
     }
 }
