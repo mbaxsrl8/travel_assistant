@@ -4,6 +4,7 @@
 
 - Add Javadoc to every Java interface describing its responsibility.
 - Add Javadoc to every interface method describing its behavior, parameters, return value, and declared exceptions where applicable.
+- Whenever a controller API is added or updated, update `docs/api-design.md` in the same change.
 
 ## Service Development
 
