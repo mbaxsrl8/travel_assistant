@@ -12,30 +12,30 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.travelmemory.cache.PriceCacheRepository;
 import com.example.travelmemory.cache.RedisKeyBuilder;
 import com.example.travelmemory.api.response.PriceHistoryResponse;
 import com.example.travelmemory.api.response.PriceWriteResponse;
 import com.example.travelmemory.model.HotelPriceQuery;
 import com.example.travelmemory.model.HotelPriceSnapshot;
+import com.example.travelmemory.service.HotelPriceService;
 
 @RestController
 @RequestMapping("/api/v1/hotels/prices")
 public class HotelPriceController {
 
-    private final PriceCacheRepository cacheRepository;
+    private final HotelPriceService priceService;
     private final RedisKeyBuilder keyBuilder;
 
-    public HotelPriceController(PriceCacheRepository cacheRepository, RedisKeyBuilder keyBuilder) {
-        this.cacheRepository = cacheRepository;
+    public HotelPriceController(HotelPriceService priceService, RedisKeyBuilder keyBuilder) {
+        this.priceService = priceService;
         this.keyBuilder = keyBuilder;
     }
 
     @PostMapping
     public ResponseEntity<PriceWriteResponse> saveLatestPrice(@RequestBody HotelPriceSnapshot snapshot) {
-        cacheRepository.saveLatestHotelPrice(snapshot);
+        priceService.savePrice(snapshot);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(new PriceWriteResponse("cached", keyBuilder.latestHotelPriceKey(snapshot)));
+                .body(new PriceWriteResponse("saved", keyBuilder.latestHotelPriceKey(snapshot)));
     }
 
     @GetMapping("/latest")
@@ -46,11 +46,17 @@ public class HotelPriceController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkOutDate
     ) {
         HotelPriceQuery query = new HotelPriceQuery(city, hotelName, checkInDate, checkOutDate);
-        return ResponseEntity.of(cacheRepository.getLatestHotelPrice(query));
+        return ResponseEntity.of(priceService.getLatestPrice(query));
     }
 
     @GetMapping("/history")
-    public ResponseEntity<PriceHistoryResponse<HotelPriceSnapshot>> getPriceHistory() {
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+    public PriceHistoryResponse<HotelPriceSnapshot> getPriceHistory(
+            @RequestParam String city,
+            @RequestParam String hotelName,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkInDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkOutDate
+    ) {
+        HotelPriceQuery query = new HotelPriceQuery(city, hotelName, checkInDate, checkOutDate);
+        return new PriceHistoryResponse<>(priceService.getPriceHistory(query));
     }
 }
