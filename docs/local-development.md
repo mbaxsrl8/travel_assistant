@@ -38,6 +38,9 @@ Start the application after both containers report healthy:
 mvn spring-boot:run
 ```
 
+Import `docs/postman/travel-price-memory.postman_collection.json` into Postman
+to run the same flight and hotel requests used by the local end-to-end check.
+
 ## Stop the Environment
 
 Stop the containers while preserving local data:

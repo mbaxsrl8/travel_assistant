@@ -18,6 +18,10 @@
     <value>2181</value>
   </property>
   <property>
+    <name>hbase.zookeeper.property.clientPortAddress</name>
+    <value>0.0.0.0</value>
+  </property>
+  <property>
     <name>hbase.master.hostname</name>
     <value>localhost</value>
   </property>

@@ -1,3 +1,5 @@
 target/
+.docker-tmp/
 .vscode/
 AGENTS.md
+docs/postman/
