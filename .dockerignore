@@ -1,0 +1,6 @@
+.git
+.docker-tmp
+.idea
+.vscode
+target
+*.iml
