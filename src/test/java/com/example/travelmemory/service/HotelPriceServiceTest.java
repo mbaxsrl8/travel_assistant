@@ -12,6 +12,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -40,14 +41,36 @@ class HotelPriceServiceTest {
     }
 
     @Test
-    void savesHotelPriceToCacheBeforeHistory() {
+    void savesHotelPriceToHistoryBeforeCache() {
         HotelPriceSnapshot snapshot = snapshot("2026-06-20T08:00:00Z", "220.00");
 
         assertThat(service.savePrice(snapshot)).isSameAs(snapshot);
 
         InOrder writeOrder = inOrder(cacheRepository, historyRepository);
-        writeOrder.verify(cacheRepository).saveLatestHotelPrice(snapshot);
         writeOrder.verify(historyRepository).save(snapshot);
+        writeOrder.verify(cacheRepository).saveLatestHotelPrice(snapshot);
+    }
+
+    @Test
+    void doesNotUpdateCacheWhenSavingHotelHistoryFails() {
+        HotelPriceSnapshot snapshot = snapshot("2026-06-20T08:00:00Z", "220.00");
+        RuntimeException failure = new RuntimeException("HBase unavailable");
+        doThrow(failure).when(historyRepository).save(snapshot);
+
+        assertThatThrownBy(() -> service.savePrice(snapshot)).isSameAs(failure);
+
+        verify(cacheRepository, never()).saveLatestHotelPrice(snapshot);
+    }
+
+    @Test
+    void returnsSuccessWhenHotelCacheUpdateFailsAfterHistoryIsSaved() {
+        HotelPriceSnapshot snapshot = snapshot("2026-06-20T08:00:00Z", "220.00");
+        doThrow(new RuntimeException("Redis unavailable"))
+                .when(cacheRepository).saveLatestHotelPrice(snapshot);
+
+        assertThat(service.savePrice(snapshot)).isSameAs(snapshot);
+
+        verify(historyRepository).save(snapshot);
     }
 
     @Test
