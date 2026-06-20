@@ -2,3 +2,4 @@ target/
 .docker-tmp/
 .vscode/
 docs/postman/
+docs/interview-notes.md
