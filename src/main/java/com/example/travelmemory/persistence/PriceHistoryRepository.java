@@ -2,6 +2,8 @@ package com.example.travelmemory.persistence;
 
 import java.util.List;
 
+import jakarta.annotation.Nonnull;
+
 /**
  * Persists price snapshots and retrieves their historical values by query.
  *
@@ -15,7 +17,7 @@ public interface PriceHistoryRepository<T, Q> {
      *
      * @param snapshot price snapshot to persist
      */
-    void save(T snapshot);
+    void save(@Nonnull T snapshot);
 
     /**
      * Retrieves all persisted snapshots matching the supplied query.
@@ -24,5 +26,5 @@ public interface PriceHistoryRepository<T, Q> {
      * @return matching snapshots ordered from newest to oldest, or an empty list when no history
      *         exists
      */
-    List<T> findHistory(Q query);
+    List<T> findHistory(@Nonnull Q query);
 }

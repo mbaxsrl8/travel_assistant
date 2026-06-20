@@ -7,6 +7,8 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.stream.IntStream;
 
+import jakarta.annotation.Nonnull;
+
 import org.springframework.stereotype.Component;
 
 import com.example.travelmemory.config.HBaseProperties;
@@ -28,9 +30,8 @@ public class HBaseRowKeyBuilder {
         this.saltWidth = Math.max(2, Integer.toString(saltBuckets - 1).length());
     }
 
-    public String flightRowKey(FlightPriceSnapshot snapshot) {
-        Objects.requireNonNull(snapshot, "Flight price snapshot is required");
-        Instant capturedAt = Objects.requireNonNull(snapshot.capturedAt(), "capturedAt is required");
+    public String flightRowKey(@Nonnull FlightPriceSnapshot snapshot) {
+        Instant capturedAt = snapshot.capturedAt();
         String identity = flightIdentity(
                 snapshot.origin(),
                 snapshot.destination(),
@@ -38,9 +39,8 @@ public class HBaseRowKeyBuilder {
         return rowKey(identity, capturedAt);
     }
 
-    public String hotelRowKey(HotelPriceSnapshot snapshot) {
-        Objects.requireNonNull(snapshot, "Hotel price snapshot is required");
-        Instant capturedAt = Objects.requireNonNull(snapshot.capturedAt(), "capturedAt is required");
+    public String hotelRowKey(@Nonnull HotelPriceSnapshot snapshot) {
+        Instant capturedAt = snapshot.capturedAt();
         String identity = hotelIdentity(
                 snapshot.city(),
                 snapshot.hotelName(),
@@ -48,24 +48,22 @@ public class HBaseRowKeyBuilder {
         return rowKey(identity, capturedAt);
     }
 
-    public List<String> flightScanPrefixes(FlightPriceQuery query) {
-        Objects.requireNonNull(query, "Flight price query is required");
+    public List<String> flightScanPrefixes(@Nonnull FlightPriceQuery query) {
         return scanPrefixes(flightIdentity(
                 query.origin(),
                 query.destination(),
                 query.departureDate()));
     }
 
-    public List<String> hotelScanPrefixes(HotelPriceQuery query) {
-        Objects.requireNonNull(query, "Hotel price query is required");
+    public List<String> hotelScanPrefixes(@Nonnull HotelPriceQuery query) {
         return scanPrefixes(hotelIdentity(
                 query.city(),
                 query.hotelName(),
                 query.checkInDate()));
     }
 
-    public long reverseTimestamp(Instant capturedAt) {
-        return Long.MAX_VALUE - Objects.requireNonNull(capturedAt, "capturedAt is required").toEpochMilli();
+    public long reverseTimestamp(@Nonnull Instant capturedAt) {
+        return Long.MAX_VALUE - capturedAt.toEpochMilli();
     }
 
     private String rowKey(String identity, Instant capturedAt) {
@@ -85,20 +83,20 @@ public class HBaseRowKeyBuilder {
                 .toList();
     }
 
-    private String flightIdentity(String origin, String destination, LocalDate departureDate) {
+    private String flightIdentity(String origin, String destination, @Nonnull LocalDate departureDate) {
         return normalizeAirport(origin)
                 + "-"
                 + normalizeAirport(destination)
                 + "#"
-                + requiredDate(departureDate, "departureDate");
+                + departureDate;
     }
 
-    private String hotelIdentity(String city, String hotelName, LocalDate checkInDate) {
+    private String hotelIdentity(String city, String hotelName, @Nonnull LocalDate checkInDate) {
         return normalizeText(city)
                 + "#"
                 + normalizeText(hotelName)
                 + "#"
-                + requiredDate(checkInDate, "checkInDate");
+                + checkInDate;
     }
 
     private String salt(int bucket) {
@@ -124,9 +122,5 @@ public class HBaseRowKeyBuilder {
             throw new IllegalArgumentException("Row key value must not be blank");
         }
         return value.trim();
-    }
-
-    private LocalDate requiredDate(LocalDate value, String fieldName) {
-        return Objects.requireNonNull(value, fieldName + " is required");
     }
 }

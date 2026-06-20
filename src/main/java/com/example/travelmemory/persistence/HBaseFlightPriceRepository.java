@@ -9,6 +9,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
+import jakarta.annotation.Nonnull;
+
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.Put;
@@ -50,8 +52,7 @@ public class HBaseFlightPriceRepository
     }
 
     @Override
-    public void save(FlightPriceSnapshot snapshot) {
-        Objects.requireNonNull(snapshot, "Flight price snapshot is required");
+    public void save(@Nonnull FlightPriceSnapshot snapshot) {
         Put put = new Put(Bytes.toBytes(rowKeyBuilder.flightRowKey(snapshot)));
 
         HBaseColumnSupport.add(put, HBaseColumnSupport.ORIGIN, snapshot.origin());
@@ -77,8 +78,7 @@ public class HBaseFlightPriceRepository
     }
 
     @Override
-    public List<FlightPriceSnapshot> findHistory(FlightPriceQuery query) {
-        Objects.requireNonNull(query, "Flight price query is required");
+    public List<FlightPriceSnapshot> findHistory(@Nonnull FlightPriceQuery query) {
         List<FlightPriceSnapshot> snapshots = new ArrayList<>();
 
         try (Table table = connection.getTable(tableName)) {

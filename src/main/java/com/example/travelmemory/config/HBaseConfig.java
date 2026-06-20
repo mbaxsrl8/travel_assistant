@@ -14,8 +14,9 @@ import org.springframework.context.annotation.Lazy;
 public class HBaseConfig {
 
     @Bean(destroyMethod = "close")
-    @Lazy
-    public Connection hBaseConnection(HBaseProperties properties) throws IOException {
+    @Lazy 
+    @SuppressWarnings("unused")
+    Connection hBaseConnection(HBaseProperties properties) throws IOException {
         org.apache.hadoop.conf.Configuration configuration = HBaseConfiguration.create();
         configuration.set(HConstants.ZOOKEEPER_QUORUM, properties.quorum());
         configuration.setInt(HConstants.ZOOKEEPER_CLIENT_PORT, properties.clientPort());
