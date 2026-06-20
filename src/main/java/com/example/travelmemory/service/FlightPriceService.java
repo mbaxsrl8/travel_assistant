@@ -28,7 +28,7 @@ public class FlightPriceService {
         this.historyRepository = historyRepository;
     }
 
-    public FlightPriceSnapshot savePrice(FlightPriceSnapshot snapshot) {
+    public void savePrice(FlightPriceSnapshot snapshot) {
         PriceRequestValidator.validate(snapshot);
 
         // 1. Persist first: HBase is the source of truth
@@ -41,7 +41,6 @@ public class FlightPriceService {
             log.warn("Failed to update latest flight price cache. snapshot=" + snapshot, e);
         }
 
-        return snapshot;
     }
 
     public Optional<FlightPriceSnapshot> getLatestPrice(FlightPriceQuery query) {

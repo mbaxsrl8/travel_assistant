@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,7 +45,7 @@ class FlightPriceServiceTest {
     void savesFlightPriceToHistoryBeforeCache() {
         FlightPriceSnapshot snapshot = snapshot("2026-06-20T08:00:00Z", "715.50");
 
-        assertThat(service.savePrice(snapshot)).isSameAs(snapshot);
+        service.savePrice(snapshot);
 
         InOrder writeOrder = inOrder(cacheRepository, historyRepository);
         writeOrder.verify(historyRepository).save(snapshot);
@@ -68,7 +69,7 @@ class FlightPriceServiceTest {
         doThrow(new RuntimeException("Redis unavailable"))
                 .when(cacheRepository).saveLatestFlightPrice(snapshot);
 
-        assertThat(service.savePrice(snapshot)).isSameAs(snapshot);
+        assertThatCode(() -> service.savePrice(snapshot)).doesNotThrowAnyException();
 
         verify(historyRepository).save(snapshot);
     }

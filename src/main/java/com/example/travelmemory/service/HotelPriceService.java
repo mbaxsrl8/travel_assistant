@@ -28,7 +28,7 @@ public class HotelPriceService {
         this.historyRepository = historyRepository;
     }
 
-    public HotelPriceSnapshot savePrice(HotelPriceSnapshot snapshot) {
+    public void savePrice(HotelPriceSnapshot snapshot) {
         PriceRequestValidator.validate(snapshot);
 
         // 1. Persist first: HBase is the source of truth
@@ -41,7 +41,6 @@ public class HotelPriceService {
             log.warn("Failed to update latest hotel price cache. snapshot=" + snapshot, e);
         }
 
-        return snapshot;
     }
 
     public Optional<HotelPriceSnapshot> getLatestPrice(HotelPriceQuery query) {
