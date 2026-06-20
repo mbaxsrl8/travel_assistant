@@ -18,6 +18,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.travelmemory.cache.PriceCacheRepository;
 import com.example.travelmemory.exception.InvalidPriceRequestException;
@@ -48,6 +49,14 @@ class FlightPriceServiceTest {
         InOrder writeOrder = inOrder(cacheRepository, historyRepository);
         writeOrder.verify(cacheRepository).saveLatestFlightPrice(snapshot);
         writeOrder.verify(historyRepository).save(snapshot);
+    }
+
+    @Test
+    void savePriceIsTransactional() throws NoSuchMethodException {
+        assertThat(FlightPriceService.class
+                .getMethod("savePrice", FlightPriceSnapshot.class)
+                .isAnnotationPresent(Transactional.class))
+                .isTrue();
     }
 
     @Test

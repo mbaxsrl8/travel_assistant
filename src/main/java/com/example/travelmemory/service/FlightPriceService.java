@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.travelmemory.cache.PriceCacheRepository;
 import com.example.travelmemory.model.FlightPriceQuery;
@@ -24,6 +25,7 @@ public class FlightPriceService {
         this.historyRepository = historyRepository;
     }
 
+    @Transactional
     public FlightPriceSnapshot savePrice(FlightPriceSnapshot snapshot) {
         PriceRequestValidator.validate(snapshot);
         cacheRepository.saveLatestFlightPrice(snapshot);
