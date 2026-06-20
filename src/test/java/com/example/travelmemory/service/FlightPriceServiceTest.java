@@ -31,7 +31,7 @@ class FlightPriceServiceTest {
     private PriceHistoryRepository<FlightPriceSnapshot, FlightPriceQuery> historyRepository;
     private FlightPriceService service;
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unused", "unchecked"})
     @BeforeEach
     void setUp() {
         cacheRepository = mock(PriceCacheRepository.class);

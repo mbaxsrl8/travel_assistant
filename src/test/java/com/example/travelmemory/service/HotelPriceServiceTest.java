@@ -31,7 +31,7 @@ class HotelPriceServiceTest {
     private PriceHistoryRepository<HotelPriceSnapshot, HotelPriceQuery> historyRepository;
     private HotelPriceService service;
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unused", "unchecked"})
     @BeforeEach
     void setUp() {
         cacheRepository = mock(PriceCacheRepository.class);
