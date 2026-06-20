@@ -1,0 +1,40 @@
+services:
+  redis:
+    image: redis:7.4-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  hbase:
+    build:
+      context: .
+      dockerfile: infra/hbase/Dockerfile
+      args:
+        HBASE_VERSION: "2.5.8"
+    ports:
+      - "2181:2181"
+      - "16000:16000"
+      - "16010:16010"
+      - "16020:16020"
+      - "16030:16030"
+    volumes:
+      - hbase-data:/data
+    healthcheck:
+      test: ["CMD", "test", "-f", "/tmp/hbase-ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+    restart: unless-stopped
+
+volumes:
+  redis-data:
+  hbase-data:
