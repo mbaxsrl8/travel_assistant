@@ -1,11 +1,5 @@
 package com.example.travelmemory.persistence;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -21,9 +15,14 @@ import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
 import org.apache.hadoop.hbase.util.Bytes;
+import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import com.example.travelmemory.config.HBaseProperties;
 import com.example.travelmemory.model.FlightPriceQuery;
@@ -36,6 +35,7 @@ class HBaseFlightPriceRepositoryTest {
     private Table table;
     private HBaseFlightPriceRepository repository;
 
+    @SuppressWarnings("unused")
     @BeforeEach
     void setUp() throws IOException {
         connection = mock(Connection.class);
